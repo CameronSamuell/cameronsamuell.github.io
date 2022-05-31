@@ -8,4 +8,4 @@ comments: false
 
 Test
 
-![giftest](./assets/img/giftest.gif)
+![giftest](/assets/img/giftest.gif)
