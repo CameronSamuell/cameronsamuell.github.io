@@ -28,4 +28,7 @@ Here's an example of a small scan of the learning rate which clearly demonstrate
 
 ![](/assets/img/learning_rate.png)
 *Performance evolution of a DQN agent being trained with learning rates of 1e-4 (orange), 1e-3 (blue), and 1e-4 (gray). The gray curve continues to evolve after 32 hours of training on a Macbook Pro.*
+
 test
+
+<img src="/assets/img/giftest.gif" alt="drawing" width="200" />
