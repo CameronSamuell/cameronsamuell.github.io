@@ -6,8 +6,7 @@ thumbnail-img: /assets/img/joadia-map-simple.png
 comments: false
 ---
 
-Test2
+Test3
 
 ![giftest](/assets/img/giftest.gif )
 
-<img src="assets/img/giftest.gif" alt="drawing" width="200" />
