@@ -8,4 +8,6 @@ comments: false
 
 Test
 
-![giftest](/assets/img/giftest.gif)
+![giftest](/assets/img/giftest.gif )
+
+<img src="/assets/img/giftest.gif" alt="drawing" width="200" />
