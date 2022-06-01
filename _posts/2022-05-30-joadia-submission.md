@@ -25,4 +25,5 @@ But if this was a project for my day job, the place I'd be focussing my time wou
 Here's an example of a small scan of the learning rate which clearly demonstrates the sensitivity of the training process to these values, and the need for wide experimentation even for simple changes. 
 
 ![](/assets/img/learning_rate.png)
-*Training evolution of a DQN agent with learning rates of 1e-4 (orange), 1e-3 (blue), and 1e-4 (gray). The gray curve continues to evolve after 32 hours of training on a macbook pro.*
+*Performance evolution of a DQN agent being trained with learning rates of 1e-4 (orange), 1e-3 (blue), and 1e-4 (gray). The gray curve continues to evolve after 32 hours of training on a Macbook Pro.*
+test
