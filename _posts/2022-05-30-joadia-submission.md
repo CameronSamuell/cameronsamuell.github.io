@@ -23,6 +23,7 @@ Six weeks ultimatly turned out to not nearly be enough for me to work through my
 But if this was a project for my day job, the place I'd be focussing my time would be looking to find methods to speed up the iterative process. Being able to only do 1-2 experiments per day was a bottleneck for me. I suspect training on a GPU would speed a lot of these training runs up, but I'd first look to parallelization. Doing a hyperparameter search of a 5 parameters, each with 5 values can be done using a cloud VM for $1/hour and would be a game changer for exploring the Joadia solution space.
 
 
+ 
 Here's an example of a small scan of the learning rate which clearly demonstrates the sensitivity of the training process to these values, and the need for wide experimentation even for simple changes. 
 
 ![](/assets/img/learning_rate.png)
