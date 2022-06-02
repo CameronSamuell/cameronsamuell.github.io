@@ -66,11 +66,17 @@ I generated a training dataset by recording both the observations and actions of
 
 The most critical decision in this process was deciding on a loss function. It wouldn't have been sufficient to just take the difference in observed and predicted action, similar numerical ids of the territories does not correspond similar decisions. Sending a unit to territory T9 isn't almost the same as sending the unit to territory T14 Instead we need to compare the prediction action with the policy distribution across all actions. We want our Lietenant to repliacate that given a particular observation (the state of the game and the unit to command), General Heuristic was 60% sure that the unit be sent to territory T11 and 23% sure that they be sent to territory T16. 
 
+On this measure Lieutenant Learning certainly improved - the performance gradually went up round-by-round. But the system never got _good_.   
+
+This is how Lietenant Learning, at the completion of his education, compared to General Heuristic:
+
+
+![](/assets/img/pretraining_score.png)
+*Best score achieved during training of a vanilla DQN agent.*
 
 
 To try and correct this, I did a fair amount of hyperparameter tuning including the optimizer, the number of epochs, the learning rate , the learning rate scheduling, learning rate decay, and so on. The thing that made the biggest difference was raising the number of interactions in the expert dataset. Performance steadily increased as the training dataset grew, but the training time became miserably slow by the time I got to a 
 
-This is how Lietenant Learning compared to General Heuristic at the height of his training, having studied over a million games. 
 
 So, not great! I didn't get to the bottom of why this was. Did my training dataset not capture real games well enough? Not enough data or enough training time to learn from it? Was my loss function off? Was PPO a fundamentally bad choice? The base model choice is the next thing I would have swapped out, followed by finding a way to simplify the observation data to reduce the training scope (and therefore amount of data/training time) to at least get a demonstration that the rest of the imitation learning setup was bug free and then increase scope dataset size from there. 
 
@@ -80,6 +86,14 @@ In the simplest submissions one could make for this competition, one would just 
 
 In addition to probably not being very good _objectively_, I suspect that this agent isn't very generalisable.  If nothing else, I would have liked to have had the training games be using a random weighting for contributions from the 'RedHeuristic' and 'Random Legal' agents. It would have taken longer to train I suspect, but ultimately been less sensitive to that artificially imposed parameter. Training a red agent and then having a mix of agents that include both random legal, heuristics, and RL, would be even better. 
 
+This was the best core achieved during training, not quite on par with General Heurisitc, but close enough that I suspect that more hyperparameter tuning, and adjustment/scaling of the observation and loss function would probably have gotten there. 
+
+
+![](/assets/img/dqn_score.png)
+*Best score achieved during training of a vanilla DQN agent.*
+
+
+_Note_: `model.load` didn't function as expected for running `test.py` here. Potentially an unexpected consequence of my upgrading `stable_baselines3` from 1.0 to 1.5.0 (`gym` 0.21.0) to get access to `model.policy.get_distribution()` for the pre-training experiment. 
 
 ### Next steps and outstanding ideas
 
