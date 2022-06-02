@@ -68,7 +68,7 @@ This is how Lieutenant Learning, at the completion of his education, compared to
 
 
 ![](/assets/img/pretraining_score.png)
-* The best pretrained model scoring -39.75 compared to scores of -44.91 for the Random Legal agent and +10.28 for General Heuristic.*
+*The best pretrained model scoring -39.75 compared to scores of -44.91 for the Random Legal agent and +10.28 for General Heuristic.*
 
 
 To try and correct this, I did a fair amount of hyperparameter tuning including the optimizer, the number of epochs, the learning rate , the learning rate scheduling, learning rate decay, and so on. The thing that made the biggest difference was raising the number of interactions in the expert dataset. Performance steadily increased as the training dataset grew, but the training time became miserably slow by the time I got to a 
@@ -107,12 +107,13 @@ Here's an example of a small scan of the learning rate which clearly demonstrate
 ![](/assets/img/learning_rate.png)
 *Performance evolution of a DQN agent being trained with learning rates of 1e-4 (orange), 1e-3 (blue), and 1e-4 (gray). The gray curve continues to evolve after 32 hours of training on a Macbook Pro.*
 
-Ultimately, I'd want to be testing both a _ton_ of those small changes to makes sure I'm not being fooled by local minimal or bad hyper parameter choice which in turn would let me spend more time thinking about the big changes i could be making. 
+Ultimately, I'd want to be testing both a _ton_ of those small changes to makes sure I'm not being fooled by local minimal or bad hyper parameter choice which in turn would let me spend more time thinking about the big changes I could be making. 
 
 ### Downloads
 
-#### Agent
-
+#### Agents
+* The Lieutenant that Cameron's bootcamp supplied was [pretrained_student_2022-05-16.zip](/assets/downloads/pretrained_student_2022-05-16.zip).
+* The best vanilla DQN agent was ['DQN_2022-06-02.zip'](/assets/downloads/DQN_2022-06-02.zip).
 #### Code
 
 This code is pretty hacky, but if you want to see how I went about all of this:
