@@ -68,7 +68,7 @@ The most critical decision in this process was deciding on a loss function. It w
 
 On this measure Lieutenant Learning certainly improved - the performance gradually went up round-by-round. But the system never got _good_.   
 
-This is how Lietenant Learning, at the completion of his education, compared to General Heuristic:
+This is how Lieutenant Learning, at the completion of his education, compared to General Heuristic:
 
 
 ![](/assets/img/pretraining_score.png)
