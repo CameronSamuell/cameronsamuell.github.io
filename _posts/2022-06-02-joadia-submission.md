@@ -6,16 +6,12 @@ thumbnail-img: /assets/img/joadia-map-simple.png
 comments: false
 ---
 
-# DDDDDDRRRRRAAAAAAAAAFT. This is a Draft. 
-
-
 The Joadia Islands are a dark and sinister place. Or at least, it would seem so if you were to look at the fatality rate during recent tsunamis that occured on my laptop. Sorry folks, turns out that C130 wasn't coming for you after all. 
 
 The task here was create an agent that would play the Joadia turn-based tabletop game, and play to win. For me, this was my first experience with reinforcement learning and I used to it explore imitation learning with the hope of replicating some of the success that transfer learning has had in other machine learning fields. I figure that I had so many ideas for how to improve the model, I couldn't wait around for it to train from scratch every time. I wanted to start with a pre-trained model that I could finesse.  
 
 
 Did it work? No it did not. 
-
 
 
 ### Having a peek at the machinery beneath Joadia
@@ -72,7 +68,7 @@ This is how Lieutenant Learning, at the completion of his education, compared to
 
 
 ![](/assets/img/pretraining_score.png)
-*Best score achieved during training of a vanilla DQN agent.*
+* The best pretrained model scoring -39.75 compared to scores of -44.91 for the Random Legal agent and +10.28 for General Heuristic.*
 
 
 To try and correct this, I did a fair amount of hyperparameter tuning including the optimizer, the number of epochs, the learning rate , the learning rate scheduling, learning rate decay, and so on. The thing that made the biggest difference was raising the number of interactions in the expert dataset. Performance steadily increased as the training dataset grew, but the training time became miserably slow by the time I got to a 
@@ -90,7 +86,7 @@ This was the best core achieved during training, not quite on par with General H
 
 
 ![](/assets/img/dqn_score.png)
-*Best score achieved during training of a vanilla DQN agent.*
+*Best mid-training test score of 1.66 for a vanilla DQN agent.*
 
 
 _Note_: `model.load` didn't function as expected for running `test.py` here. Potentially an unexpected consequence of my upgrading `stable_baselines3` from 1.0 to 1.5.0 (`gym` 0.21.0) to get access to `model.policy.get_distribution()` for the pre-training experiment. 
@@ -125,6 +121,6 @@ This code is pretty hacky, but if you want to see how I went about all of this:
 
 ### Finally...
 
-Making Joadia available like this for a short challenge was probably a ton of work for someone(s). I had a great time, and learned all kinds of weird things. RL. SPOD. A2C. OPV. PPO. DQN. Mot Coy! 
+Making Joadia available like this for a short challenge was probably a ton of work for someone/some people. I had a great time, and learned all kinds of weird things. RL. SPOD. A2C. OPV. PPO. DQN. Mot Coy! 
 
 So, thank you!
