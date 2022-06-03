@@ -10,11 +10,11 @@ The Joadia Islands are a dark and sinister place. Or at least, it would seem so 
 
 The task here was to create an agent that would play the Joadia turn-based tabletop game and play to win. This was my first experience with reinforcement learning, and I used to it explore imitation learning with the hope of replicating some of the success that transfer learning has had in other machine learning fields. I figure that I had so many ideas for how to improve the model, I couldn't wait around for it to train from scratch every time. I wanted to start with a pre-trained model that I could finesse.  
 
-Did it work? No it did not. 
+Did it work? No, it did not. 
 
 ### Having a peek at the machinery beneath Joadia
 
-Before getting to the actual agent-trainig, my first step was try and gain some intuition for how the Joadia game mechanics worked and understand the underlying data structures. I needed to know how the state of the game was stored, what information was available to the game at any given time for it to make a decision, and how that decision would be communicated to the game. But I was also curious to see if I could glean some hints from looking at the spatial distribution of the various populations, or the trajectory of the rescues and deaths as a game progressed. 
+Before getting to the actual agent-training, my first step was to try and gain some intuition for how the Joadia game mechanics worked and understand the underlying data structures. I needed to know how the state of the game was stored, what information was available to the game at any given time for it to make a decision, and how that decision would be communicated to the game. But I was also curious to see if I could glean some hints from looking at the spatial distribution of the various populations, or the trajectory of the rescues and deaths as a game progressed. 
 
 To gather the information, I had a script that ran through a single iteration of the game while keeping track of all the status values for each territory at each turn. These values had to be remapped into a rectilinear coordinate for plotting which also gave me a nice way to plot a reference map of the terrain. I stumbled here by not considering the fog-of-war effect. The agent's view of the world is limited to the places it has visited. By including both the real data and the blue agent's view of the data in my visualisation, we have a chance to observe why the agent might have made a particular decision, but also _what was really happening_ in Joadia that the agent was oblivious to. 
 
@@ -50,15 +50,15 @@ While there are a few details in how the training routine was set up, the most c
 On this measure Lieutenant Learning certainly improved - the performance gradually went up round-by-round for a PPO agent. But the system never got _good_. This is how Lieutenant Learning, at the completion of his education, compared to General Heuristic:
 
 ![](/assets/img/pretraining_score.png)
-*The best pre-trained model scoring -39.75 compared to scores of -44.91 for the Random Legal agent and +10.28 for General Heuristic.*
+*The best pre-trained model scored -39.75 compared to scores of -44.91 for the Random Legal agent and +10.28 for General Heuristic.*
 
-The improvement compared to a Random Legal agent suggests the pre-trained model learned _something_, but it was nowhere near the General's benchmark. To try and correct this, I did a fair amount of hyperparameter tuning including the optimizer, the number of epochs, the learning rate, the learning rate schedule, learning rate decay, and so on. Increasing the training dataset size made the biggest positive impact to the performance, but training became very slow as a result.
+The improvement compared to a Random Legal agent suggests the pre-trained model learned _something_, but it was nowhere near the General's benchmark. To try and correct this, I did a fair amount of hyperparameter tuning including the optimizer, the number of epochs, the learning rate, the learning rate schedule, learning rate decay, and so on. Increasing the training dataset size made the biggest positive impact on the performance, but training became very slow as a result.
 
 So, not great! I didn't get to the bottom of why this was. Did my training dataset not capture real games well enough? Not enough data or enough training time to learn from it? Was my loss function off? Was PPO a fundamentally bad choice? The base model choice is the next thing I would have swapped out, followed by finding a way to simplify the observation data to reduce the training scope (and therefore the amount of data/training time) to at least get a demonstration that the basics were sound and then increase scope and dataset size from there. 
 
 ### Producing an actual agent
 
-In the simplest submission you could make for this competition, you might just tweak some parameters for training models from `Stable-Baseline3`. The final agent that I present here is precisely that. That's not a very satisfying outcome, but it's better than anything that our friend Lieutenant Learning could come up with! It's a DQN agent that learned for 5e7 time-steps and at a learning rate of 1e-4. 
+In a simple submission one could make for this competition, you might just tweak some parameters for training models from `Stable-Baseline3`. The final agent that I present here is precisely that. That's not a very satisfying outcome, but it's better than anything that our friend Lieutenant Learning could come up with! It's a DQN agent that learned for 5e7 time-steps and at a learning rate of 1e-4. 
 
 In addition to probably not being all that good _objectively_, I suspect that this agent isn't very generalisable.  If nothing else, I would have liked to have had the training games be using a random weighting for contributions from the 'Red Heuristic' and 'Random Legal' agents. It would have taken longer to train of course, but ultimately been less sensitive to that artificially imposed parameter. Training a red agent and then having a mix of agents that include both random legal, heuristics, and RL, would be even better. 
 
@@ -74,8 +74,8 @@ _Note_: `model.load` didn't function as expected for running `test.py` here. Pot
 Six weeks ultimately turned out to not nearly be enough for me to work through my ideas list. If I were to keep going, there's a whole host of things I'd want to try. For example:
 * I didn't experiment with the simplified observation options, but it's not because I didn't like the idea. In fact, the more time I spent training models and staring at the observation data, the more I realised the task would be difficult for a model to get to grips with because the important details for any given decision were contained in only a subset of the features. What I'd like to try is having an abstraction layer that would allow me to first train a model on a simplified picture of the game status, and then progressively give it a more detailed set of observations in an iterative training process.
 * Changing and scaling the reward function is a natural step to take that I didn't get around to. This has the capacity to not only affect the performance, but also the training speed and numerical stability. 
-* Having an agent learn how to play many _styles_ of Joadia game seems important to avoid overfitting. One thing I'd be curious to try though is to train a set of agents with various specialisations. For instance, an agent that focuses on maximising rescues, one that minimises deaths, one that prioritises exploration, one that aggressively responds to red agent action, and so on. These models are intentionally overfit however they could be taken as an ensemble with an agent trained in assessing which of those models is best to act in a given scenario. 
-* It probably goes without saying, but I've focussed on Stable Baselines models. Testing the waters with newer algorithms and a broader set of architectures would would be super interesting. I'd want to exhaust simple approaches first though. 
+* Having an agent learn how to play many _styles_ of Joadia game seems important to avoid overfitting. One thing I'd be curious to try though is to train a set of agents with various specialisations. For instance, an agent that focuses on maximising rescues, one that minimises deaths, one that prioritises exploration, one that aggressively responds to red agent action, and so on. These models are intentionally overfitted however they could be taken as an ensemble with an agent trained in assessing which of those models is best to act in any given scenario. 
+* It probably goes without saying, but I've focussed on Stable Baselines models. Testing the waters with newer algorithms and a broader set of architectures would be super interesting. I'd want to exhaust simple approaches first though. 
 
 But if this was a project for my day job, the place I'd be starting would be to build a system _around_ this training process to speed up the iterative process. Being able to only do 1-2 experiments per day was a bottleneck for me. I suspect training on a GPU would speed a lot of these training runs up, but I'd first look to parallelization. Doing a hyperparameter search of five parameters, each with five values, can be done using a cloud VM for less than $1/hour. Being able to spawn training jobs on a cluster with elastic size, or submit them to a serverless utility would be even better. But of course, this comes with a lot of overhead. In either case, parallelised training would be a game-changer for exploring the Joadia solution space.
 
@@ -84,7 +84,7 @@ Here's an example of a small scan of the learning rate which clearly demonstrate
 ![](/assets/img/learning_rate.png)
 *Performance evolution of a DQN agent being trained with learning rates of 1e-4 (orange), 1e-3 (blue), and 1e-4 (grey). The grey curve continues to evolve after 32 hours of training on a MacBook Pro.*
 
-Ultimately, I'd want to be testing a _ton_ of those small changes to make sure I'm not being fooled by local minimal or bad hype parameter choice which in turn would let me spend more time thinking about the big changes I could be making. 
+Ultimately, I'd want to be testing a _ton_ of those small changes to make sure I'm not being fooled by local minima or bad hyperparameter choice which in turn would let me spend more time thinking about the big changes I could be making. 
 
 ### Finally...
 
