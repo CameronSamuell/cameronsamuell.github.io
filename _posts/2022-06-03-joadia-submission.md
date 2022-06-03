@@ -6,7 +6,7 @@ thumbnail-img: /assets/img/joadia-map-simple.png
 comments: false
 ---
 
-The Joadia Islands are a dark and sinister place. Or at least, it would seem so if you were to look at the fatality rate during recent tsunamis that occurred on my laptop. Sorry folks, it turns out that C130 wasn't coming for you after all. 
+The Joadia Islands are a dark and sinister place. Or at least, it would seem so if you were to look at the fatality rate during recent tsunamis that occurred on my laptop. Sorry folks. It turns out that C130 wasn't coming for you after all. 
 
 The task here was to create an agent that would play the Joadia turn-based tabletop game and play to win. This was my first experience with reinforcement learning, and I used to it explore imitation learning with the hope of replicating some of the success that transfer learning has had in other machine learning fields. I figure that I had so many ideas for how to improve the model, I couldn't wait around for it to train from scratch every time. I wanted to start with a pre-trained model that I could finesse.  
 
@@ -14,9 +14,9 @@ Did it work? No it did not.
 
 ### Having a peek at the machinery beneath Joadia
 
-My first step was to gain some intuition on how the Joadia game worked and understand the underlying data structures. I needed to know how the state of the game was stored, what information was available to the game at any given time for it to make a decision, and how that decision would be communicated to the game. But I was also curious to see if I could glean some hints from looking at the spatial distribution of the various populations, or the trajectory of the rescues and deaths as the games progressed. 
+Before getting to the actual agent-trainig, my first step was try and gain some intuition for how the Joadia game mechanics worked and understand the underlying data structures. I needed to know how the state of the game was stored, what information was available to the game at any given time for it to make a decision, and how that decision would be communicated to the game. But I was also curious to see if I could glean some hints from looking at the spatial distribution of the various populations, or the trajectory of the rescues and deaths as a game progressed. 
 
-To gather the information, I had a script that ran through a single iteration of the game while keeping track of all the status values for each territory at each turn. These values had to be remapped into a rectilinear coordinate for plotting which also gave me a nice way to plot a reference map of the terrain. I stumbled here by not considering the fog-of-war effect. The agent's view of the world is limited to the places it has visited. By including both the blue agent's view but also the real population mapping in my visualisation, we have both a chance to see why the agent might have made a particular decision, but also _what was really happening_ in Joadia that the agent was oblivious to. 
+To gather the information, I had a script that ran through a single iteration of the game while keeping track of all the status values for each territory at each turn. These values had to be remapped into a rectilinear coordinate for plotting which also gave me a nice way to plot a reference map of the terrain. I stumbled here by not considering the fog-of-war effect. The agent's view of the world is limited to the places it has visited. By including both the real data and the blue agent's view of the data in my visualisation, we have a chance to observe why the agent might have made a particular decision, but also _what was really happening_ in Joadia that the agent was oblivious to. 
 
 Here's a General Heuristic, our best performing example agent, playing a game:
 
@@ -24,7 +24,7 @@ Here's a General Heuristic, our best performing example agent, playing a game:
   <img src="/assets/img/general_heuristic.gif" alt="drawing" width="600" />
 </p>
 
- You can see the blue view expanding over the course of the game as well as the reduction civilian population numbers at the island outskirts as people are healed and moved to the forward operating base. You can also see the rising rescues and deaths as the larger story unfolds turn-by-turn. 
+ You can see the blue view expanding over the course of the game as well as the reduction in civilian population numbers at the island outskirts as people are healed and moved to the forward operating base. You can also see the rising rescues and deaths as the larger story unfolds turn-by-turn. 
 
 Now, here is Random Legal playing a game:
 
@@ -32,7 +32,7 @@ Now, here is Random Legal playing a game:
   <img src="/assets/img/random_legal.gif" alt="drawing" width="600" />
 </p>
 
-Unsurprisingly, making random decisions didn't work out well for Joadia's residents. Comparing the two cases though, you can see that trajectory of deaths is about the same. General Heuristic rescued a lot more people and that made a world of difference because the scoring weights rescues over deaths. That points to the potential for training agents on loss functions that relate more directly to either maximising rescues or minimising deaths rather than the score.  Not a lot can be gleaned from differences in the population distributions, but that might just be the granularity of the map at play. 
+Unsurprisingly, making random decisions didn't work out well for Joadia's residents. Comparing the two cases though, you can see that trajectory of deaths is about the same. General Heuristic rescued a lot more people and that made a world of difference because the scoring weights rescues over deaths. That points to the potential for training agents on loss functions that relate more directly to either maximising rescues or minimising deaths rather than the score.  Not a lot can be gleaned from differences in the population distributions, but that might just be the granularity of the map.
 
 Perhaps a game with more turns is better suited to this kind of visualisation, but even here I think it would be possible to see the difference in agents that prioritised early vs late-game actions or had radically different spatial distributions of healthy or injured civilians that might help understand the strengths and weaknesses of particular agents. 
 
