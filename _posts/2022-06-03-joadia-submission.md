@@ -8,7 +8,7 @@ comments: false
 
 The Joadia Islands are a dark and sinister place. Or at least, it would seem so if you were to look at the fatality rate during recent tsunamis that occurred on my laptop. Sorry folks. It turns out that C130 wasn't coming for you after all. 
 
-The task here was to create an agent that would play the Joadia turn-based tabletop game and play to win. This was my first experience with reinforcement learning, and I used to it explore imitation learning with the hope of replicating some of the success that transfer learning has had in other machine learning fields. I figure that I had so many ideas for how to improve the model, I couldn't wait around for it to train from scratch every time. I wanted to start with a pre-trained model that I could finesse.  
+The task here was to create an agent that would play the Joadia turn-based tabletop game and play to win. This was my first experience with reinforcement learning, and I used to it explore imitation learning with the hope of replicating some of the success that transfer learning has had in other machine learning fields. I figure that I had so many ideas for how to improve the model, I couldn't wait around for it to train from scratch every time. I wanted to start with a pre-trained model that would act as my jumping off point.  
 
 Did it work? No, it did not. 
 
@@ -16,9 +16,9 @@ Did it work? No, it did not.
 
 Before getting to the actual agent-training, my first step was to try and gain some intuition for how the Joadia game mechanics worked and understand the underlying data structures. I needed to know how the state of the game was stored, what information was available to the game at any given time for it to make a decision, and how that decision would be communicated to the game. But I was also curious to see if I could glean some hints from looking at the spatial distribution of the various populations, or the trajectory of the rescues and deaths as a game progressed. 
 
-To gather the information, I had a script that ran through a single iteration of the game while keeping track of all the status values for each territory at each turn. These values had to be remapped into a rectilinear coordinate for plotting which also gave me a nice way to plot a reference map of the terrain. I stumbled here by not considering the fog-of-war effect. The agent's view of the world is limited to the places it has visited. By including both the real data and the blue agent's view of the data in my visualisation, we have a chance to observe why the agent might have made a particular decision, but also _what was really happening_ in Joadia that the agent was oblivious to. 
+To gather the information, I had a script that ran through a single iteration of the game while keeping track of all the status values for each territory at each turn. These values had to be remapped into a rectilinear coordinate for plotting which also gave me a nice way to plot a reference map of the terrain. I stumbled here by not considering the fog-of-war effect. The agent's view of the world is limited to the places it has visited. Including both the real data and the blue agent's view of the data in my visualisation, we have a chance to observe why the agent might have made a particular decision, but also _what was really happening_ in Joadia that the agent was oblivious to. 
 
-Here's a General Heuristic, our best performing example agent, playing a game:
+Here's General Heuristic, our best performing example agent, playing a game:
 
 <p align="center">
   <img src="/assets/img/general_heuristic.gif" alt="drawing" width="600" />
@@ -34,7 +34,7 @@ Now, here is Random Legal playing a game:
 
 Unsurprisingly, making random decisions didn't work out well for Joadia's residents. Comparing the two cases though, you can see that trajectory of deaths is about the same. General Heuristic rescued a lot more people and that made a world of difference because the scoring weights rescues over deaths. That points to the potential for training agents on loss functions that relate more directly to either maximising rescues or minimising deaths rather than the score.  Not a lot can be gleaned from differences in the population distributions, but that might just be the granularity of the map.
 
-Perhaps a game with more turns is better suited to this kind of visualisation, but even here I think it would be possible to see the difference in agents that prioritised particular outcomes, or had radically different spatial distributions of healthy or injured civilians, that might help understand the strengths and weaknesses of  agents. 
+Perhaps a game with more turns is better suited to this kind of visualisation, but even here I think it would be possible to see the difference in agents that prioritised particular outcomes, or had radically different spatial distributions of healthy or injured civilians, which might help understand the strengths and weaknesses of  agents. 
 
 ### Creating an agent that learns from a pro
 
@@ -43,22 +43,22 @@ For image recognition ML tasks, transfer learning has been a revelation and I wa
 For our purposes, let's consider a battle-hardened but stuck-in-their ways military commander named Heuristic. His rank is General. He does an okay job; makes some sensible decisions; saves lives. General Heuristic will be our guide and the starting place for our young and scrappy junior recruit, Lieutenant Learning. Someday he's going to have ideas of his own. But for now, our lieutenant must learn the ropes. 
 
 I generated a training dataset by recording both the observations and associated actions of General Heuristic. I chose to run many full games and take the status at each turn rather than generate a random set of observations and associated actions. While it's possible there are areas of the observation space that General Heuristic would never encounter, it seemed less risky than generating random sets of observations. For instance, I wanted to make sure I included the fog-of-war effects that the visualisation
-exercise had shown me were important to capture. The observation-action pairs had to be valid situations that would be obtained in a real game. The dataset was split up into an 80/20 train/test split and fed to a training routine that aimed to create an agent that would replicate every decision. 
+exercise had shown me were important to capture. The observation-action pairs had to be valid situations that would be obtained in a real game. The dataset was split up into an 80:20 train:test split and fed to a training routine that aimed to create an agent that would replicate every decision. 
 
-While there are a few details in how the training routine was set up, the most critical decision in this process was deciding on a loss function. It wouldn't have been sufficient to just take the difference in observed and predicted actions; similar numerical ids of the territories do not correspond to similar decisions. Sending a unit to territory T9 isn't almost the same as sending the unit to territory T10. Instead, we need to compare the predicted action with the policy distribution across all actions. The extra layer of detail we capture here for example might be that General Heuristic was 60% sure that the unit be sent to T11, 23% sure that they be sent to territory T16, and 17 sure that they go to T23 given a particular observation. It's that detail that our lieutenant needed to learn.
+While there are a few details in how the training routine was set up, the most critical decision in this process was deciding on a loss function. It wouldn't have been sufficient to just take the difference in observed and predicted actions; similar numerical ids of the territories do not correspond to similar decisions. Sending a unit to territory T9 isn't almost the same as sending the unit to territory T10. Instead, we need to compare the predicted action with the policy distribution across all actions. The extra layer of detail we capture here for example might be that for a particular observation, General Heuristic was 60% sure that the unit be sent to T11, 23% sure that they be sent to territory T16, and 17% sure that they go to T23. It's that detail that our lieutenant needed to learn.
 
-On this measure Lieutenant Learning certainly improved - the performance gradually went up round-by-round for a PPO agent. But the system never got _good_. This is how Lieutenant Learning, at the completion of his education, compared to General Heuristic:
+On this measure Lieutenant Learning certainly improved - the performance gradually went up round-by-round for the Proximal Policy Optimisation (PPO) agent I focussed on. But the system never got _good_. This is how Lieutenant Learning, at the completion of his education, compared to General Heuristic:
 
 ![](/assets/img/pretraining_score.png)
 *The best pre-trained model scored -39.75 compared to scores of -44.91 for the Random Legal agent and +10.28 for General Heuristic.*
 
-The improvement compared to a Random Legal agent suggests the pre-trained model learned _something_, but it was nowhere near the General's benchmark. To try and correct this, I did a fair amount of hyperparameter tuning including the optimizer, the number of epochs, the learning rate, the learning rate schedule, learning rate decay, and so on. Increasing the training dataset size made the biggest positive impact on the performance, but training became very slow as a result.
+The improvement when compared to a Random Legal agent suggests the pre-trained model learned _something_, but it was nowhere near the General's benchmark. To try and correct this, I did a fair amount of hyperparameter tuning including the optimizer, the number of epochs, the learning rate, the learning rate schedule, learning rate decay, and so on. Increasing the training dataset size made the biggest positive impact on the performance, but training became impossibly slow as a result.
 
-So, not great! I didn't get to the bottom of why this was. Did my training dataset not capture real games well enough? Not enough data or enough training time to learn from it? Was my loss function off? Was PPO a fundamentally bad choice? The base model choice is the next thing I would have swapped out, followed by finding a way to simplify the observation data to reduce the training scope (and therefore the amount of data/training time) to at least get a demonstration that the basics were sound and then increase scope and dataset size from there. 
+So, not great! I didn't get to the bottom of why this was. Did my training dataset not capture real games well enough? Not enough data or enough training time to learn from it? Was my loss function off? Was PPO a fundamentally bad algorithm choice? The base model choice is the next thing I would have swapped out, followed by finding a way to simplify the observation data to reduce the training scope (and therefore the amount of data/training time) to at least get a demonstration that the basics were sound and then increase scope and dataset size from there. 
 
 ### Producing an actual agent
 
-In a simple submission one could make for this competition, you might just tweak some parameters for training models from `Stable-Baseline3`. The final agent that I present here is precisely that. That's not a very satisfying outcome, but it's better than anything that our friend Lieutenant Learning could come up with! It's a DQN agent that learned for 5e7 time-steps and at a learning rate of 1e-4. 
+In a simple submission one could make for this competition, you might just tweak some parameters for training models from `Stable-Baseline3`. The final agent that I present here is precisely that. That's not a very satisfying outcome, but it's better than anything that our friend Lieutenant Learning could come up with! It's a Deep Q-Network (DQN) agent that learned for 5e7 time-steps and at a learning rate of 1e-4. 
 
 In addition to probably not being all that good _objectively_, I suspect that this agent isn't very generalisable.  If nothing else, I would have liked to have had the training games be using a random weighting for contributions from the 'Red Heuristic' and 'Random Legal' agents. It would have taken longer to train of course, but ultimately been less sensitive to that artificially imposed parameter. Training a red agent and then having a mix of agents that include both random legal, heuristics, and RL, would be even better. 
 
@@ -101,6 +101,6 @@ So, thank you!
 #### Code
 
 This code is pretty hacky, but if you want to see how I went about all of this:
-* Exploring how individual games run and the generation of the images for the gifs was done in [run_single_game.py](/assets/downloads/run_single_game.py)
+* Exploring how individual games run and the generation of the images for the gifs was done in [run_single_game.py](/assets/downloads/run_single_game.py).
 * The training of an imitation model was achieved in [train_lieutenant.py](/assets/downloads/train_lieutenant.py) which calls functions defined in [pretrain_fun.py](/assets/downloads/pretrain_fun.py). 
 
