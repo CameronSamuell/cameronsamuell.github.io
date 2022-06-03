@@ -104,5 +104,3 @@ This code is pretty hacky, but if you want to see how I went about all of this:
 * Exploring how individual games run and the generation of the images for the gifs was done in [run_single_game.py](/assets/downloads/run_single_game.py)
 * The training of an imitation model was achieved in [train_lieutenant.py](/assets/downloads/train_lieutenant.py) which calls functions defined in [pretrain_fun.py](/assets/downloads/pretrain_fun.py). 
 
-
-
